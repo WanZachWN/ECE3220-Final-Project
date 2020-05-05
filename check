@@ -1,0 +1,44 @@
+void Minesweeper::Check(int i, int j)
+{
+	if (i < 0 || i > ROW)
+	{
+		return;
+	}
+	if (j < 0 || j > COL)
+	{
+		return;
+	}
+	cout << play_map[i][j] << " " << i << " " << j << endl;
+	if (play_map[i][j] != "-")
+	{
+		return;
+	}
+	if (ans_map[i][j] != "B")
+	{
+		play_map[i][j] = ans_map[i][j];
+		if (ans_map[i][j] == "0")
+		{
+			Check(i, j-1);
+			Check(i, j+1);
+			Check(i-1, j);
+			Check(i+1, j);
+			Check(i-1, j-1);
+			Check(i+1, j+1);
+			Check(i-1, j+1);
+			Check(i+1, j-1);
+		}
+	}
+	else
+	{
+		for (int x = 0; x < play_map.size(); x++) {
+			for (int y = 0; y < play_map[x].size(); y++) {
+				if (ans_map[x][y] == "B")
+				{
+					play_map[x][y] = ans_map[x][y];
+				}
+			}
+		}
+		this->lose = true;
+	}
+	return;
+}
