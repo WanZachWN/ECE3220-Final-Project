@@ -3,27 +3,46 @@
 int main()
 {
 	Minesweeper *mine = new Minesweeper();
-	bool lose = false;
 	int x = 0;
 	int y = 0;
-	
+	char cont;
 
-	while (true)
-	{
-		mine->Print();
-		cout << "Enter row: ";
-		cin >> x;
-		cout << "Enter column: ";
-		cin >> y;
-
-		lose = mine->Check(x-1, y-1);
-		if (lose == true)
+	try {
+		Print(*mine);
+		while (true)
 		{
-			mine->Print();
-			cout << "You Lose!" << endl;
-			break;
-		}
-	}
+			cout << "Enter Row: ";
+			cin >> x;
+			cout << "Enter Columns: ";
+			cin >> y;
 
+			mine->Check(x - 1, y - 1);
+			if (GetLose(*mine) == true)
+			{
+				Print(*mine);
+				cout << "You Lose!" << endl;
+				break;
+			}
+			else if (GetWin(*mine) == true)
+			{
+				Print(*mine);
+				cout << "You Win!" << endl;
+			}
+			Print(*mine);
+			cout << "Would you like to continue? (y/n): ";
+			cin >> cont;
+
+			if (cont == 'n')
+			{
+				mine->Save();
+				break;
+			}
+		}
+
+	}
+	catch (...)
+	{
+		cerr << "Unexpected Error Occured" << endl;
+	}
 	return 0;
 }
