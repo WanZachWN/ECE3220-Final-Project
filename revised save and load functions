@@ -1,0 +1,382 @@
+
+#include <iostream>
+#include <cstdlib>
+#include <vector>
+#include <fstream>
+#include <string>
+
+using namespace std;
+
+#define MAXROWCOL 100
+//================================================================================================
+class Minesweeper {
+
+private:
+	int bombs;
+
+public:
+	Minesweeper();
+	//Minesweeper(bool exist) {}
+	void Save(); //save data to file
+	void Load(); //load data from file
+	void Print(); //
+	bool Check(int, int);
+};
+
+class Map {
+    public:
+        int ROW, COL;
+        vector<vector<string>> ans_map;
+        vector<vector<string>> play_map;
+        Map()
+        {
+            ROW = 0;
+            COL = 0;
+        }
+};
+//================================================================================================
+void Minesweeper::GenerateMap()
+{
+	while (1)
+	{
+		cout << "Enter for map rows: ";
+		cin >> this->map->ROW;
+		if (this->map->ROW >= MINROWCOL && this->map->ROW <= MAXROWCOL)
+		{
+			break;
+		}
+	}
+
+	while (1)
+	{
+		cout << "Enter for map colums: ";
+		cin >> this->map->COL;
+		if (this->map->COL >= MINROWCOL && this->map->COL <= MAXROWCOL)
+		{
+			break;
+		}
+	}
+
+	while (1)
+	{
+		cout << "Enter difficulty (1 - 99): ";
+		cin >> DIFF;
+		if (DIFF >= MINDIFF && DIFF <= MAXDIFF)
+		{
+			DIFF = DIFF / 100 * (this->map->ROW* this->map->COL);
+			break;
+		}
+	}
+
+
+	this->map->ans_map.resize(this->map->ROW);
+	this->map->play_map.resize(this->map->ROW);
+	for (int i = 0; i < this->map->ROW; i++)
+	{
+		for (int j = 0; j < this->map->COL; j++)
+		{
+			if (rand() % (this->map->ROW* this->map->COL) < DIFF)
+			{
+				this->map->ans_map[i].push_back("B");
+			}
+			else
+			{
+				this->map->ans_map[i].push_back("0");
+			}
+			this->map->play_map[i].push_back("-");
+		}
+	}
+	/* type of cases
+	- four different full edges
+	- first row edges
+	- last row edges
+	- first column edges
+	- last column edges
+	- middle
+	*/
+	int bombcount;
+	for (int i = 0; i < this->map->ROW; i++)
+	{
+		for (int j = 0; j < this->map->COL; j++)
+		{
+			bombcount = 0;
+			if (this->map->ans_map[i][j] != "B")
+			{
+				if (i == 0) //first row of map
+				{
+					//first full edge
+					if (j != this->map->COL - 1)
+					{
+						if (this->map->ans_map[i][j + 1] == "B")
+						{
+							bombcount++;
+						}
+						if (this->map->ans_map[i + 1][j + 1] == "B")
+						{
+							bombcount++;
+						}
+					}
+					//second full edge
+					if (j != 0)
+					{
+						if (this->map->ans_map[i][j - 1] == "B")
+						{
+							bombcount++;
+						}
+						if (this->map->ans_map[i + 1][j - 1] == "B")
+						{
+							bombcount++;
+						}
+					}
+					if (this->map->ans_map[i + 1][j] == "B")
+					{
+						bombcount++;
+					}
+
+				}
+				else if (i == this->map->ROW - 1)
+				{
+					//third full edge
+					if (j != this->map->COL - 1)
+					{
+						if (this->map->ans_map[i][j + 1] == "B")
+						{
+							bombcount++;
+						}
+						if (this->map->ans_map[i - 1][j + 1] == "B")
+						{
+							bombcount++;
+						}
+					}
+					//fourth full edge
+					if (j != 0)
+					{
+						if (this->map->ans_map[i][j - 1] == "B")
+						{
+							bombcount++;
+						}
+						if (this->map->ans_map[i - 1][j - 1] == "B")
+						{
+							bombcount++;
+						}
+					}
+					if (this->map->ans_map[i - 1][j] == "B")
+					{
+						bombcount++;
+					}
+				}
+				else
+				{
+					//edges at first column
+					if (j != this->map->COL - 1)
+					{
+						if (this->map->ans_map[i - 1][j + 1] == "B")
+						{
+							bombcount++;
+						}
+						if (this->map->ans_map[i][j + 1] == "B")
+						{
+							bombcount++;
+						}
+						if (this->map->ans_map[i + 1][j + 1] == "B")
+						{
+							bombcount++;
+						}
+					}
+					//edges at last column
+					if (j != 0)
+					{
+						if (this->map->ans_map[i - 1][j - 1] == "B")
+						{
+							bombcount++;
+						}
+						if (this->map->ans_map[i][j - 1] == "B")
+						{
+							bombcount++;
+						}
+						if (this->map->ans_map[i + 1][j - 1] == "B")
+						{
+							bombcount++;
+						}
+					}
+					if (this->map->ans_map[i - 1][j] == "B")
+					{
+						bombcount++;
+					}
+					if (this->map->ans_map[i + 1][j] == "B")
+					{
+						bombcount++;
+					}
+				}
+				this->map->ans_map[i][j] = to_string(bombcount);
+			}
+		}
+	}
+
+}
+//================================================================================================
+void Minesweeper::Save()
+{
+	fstream load;
+	// From line 13 to 30 is to create a new file if the file is not exist
+	load.open(".txt");
+
+	try
+	{
+		if (!load.is_open())
+		{
+			load.close();
+			load.open(".txt", fstream::out);
+			load.close();
+			throw ("File does not exist, generating loader data file loader.txt");
+		}
+	}
+	catch (const runtime_error& error)
+	{
+		cerr << error.what() << endl;
+	}
+	load.close();
+	load.open("loader.txt", fstream::out);
+
+	load << ROW;
+	load << "\n";
+	load << COL;
+	load << "\n";
+	//Save the play_map
+	for(int i=0; i<play_map.size(); i++){
+		for(int j=0; j<play_map[i].size(); j++){
+			load << play_map[i][j];
+			load << "\n";
+		}
+	}
+	//Save the ans_map
+	for(int x=0; x<ans_map.size(); x++){
+		for(int y=0; y<ans_map[x].size(); y++){
+			load << ans_map[x][y];
+			load << "\n";
+		}
+	}
+
+	load.close();
+
+	return;
+}
+//================================================================================================
+void Minesweeper::Load()
+{
+	
+	ifstream load;
+	load.open("loader.txt", fstream::in);
+	try
+	{
+		if (!load.is_open())
+		{
+			load.close();
+			throw ("loader.txt File does not Exist");
+		}
+		if (load.peek() == EOF)
+		{
+			load.close();
+			throw ("loader.txt File is empty, no data saved");
+		}
+
+		int row;
+		int col;
+		string content;
+
+		load >> content;
+		row = stoi(content);
+		load >> content;
+		col = stoi(content);
+
+		this->map->ans_map.resize(this->map->ROW);
+		this->map->play_map.resize(this->map->ROW);
+		//loading play map
+		for(int i=0; i<row; i++)[
+			for(int j=0; j<col; j++){
+				load >> play_map[i][j];
+			}
+		]
+		for(int i=0; i<row; i++)[
+			for(int j=0; j<col; j++){
+				load >> ans_map[i][j];
+			}
+		]
+
+
+		load.close();
+
+	}
+	catch (const runtime_error& error)
+	{
+		cerr << error.what() << endl;
+	}
+
+	return;
+}
+//================================================================================================
+void Minesweeper::Print()
+{
+	//print first row numbers
+	cout << "   ";
+	for (int i = 1; i <= ROW; i++)
+	{
+		if (i < 10)
+		{
+			cout << "0" << i << " ";
+		}
+		else
+		{
+			cout << i << " ";
+		}
+		
+	}
+	cout << endl;
+	for (int x = 0; x < play_map.size(); x++) {
+		
+		for (int y = 0; y < play_map[x].size(); y++) {
+			if (y == 0)
+			{
+				if (x < 9)
+				{
+					cout << "0" << x + 1 << " ";
+				}
+				else
+				{
+					cout << x + 1 << " ";
+				}
+			}
+			cout << play_map[x][y] << "  ";
+		}
+		cout << endl;
+	}
+}
+//================================================================================================
+bool Minesweeper::Check(int i, int j)
+{
+	if (ans_map[i][j] != "B")
+	{
+		play_map[i][j] = ans_map[i][j];
+	}
+	else
+	{
+		for (unsigned int x = 0; x < play_map.size(); x++) {
+			for (unsigned int y = 0; y < play_map[x].size(); y++) {
+				if (ans_map[x][y] == "B")
+				{
+					play_map[x][y] = ans_map[x][y];
+				}
+			}
+		}
+		return true;
+	}
+	return false;
+}
+//================================================================================================
+void CoolStuff(int x, int y)
+{
+	while (true)
+	{
+
+	}
+}
