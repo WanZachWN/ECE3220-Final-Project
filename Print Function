@@ -1,8 +1,0 @@
-void Minesweeper::Print()
-{
-    for(int x=0; i<map.size(); x++){
-            for(int y=0; y<map[x].size(); y++){
-                cout << map[x][y];
-            }
-        }
-}
