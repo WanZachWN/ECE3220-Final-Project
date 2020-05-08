@@ -12,7 +12,7 @@ all :
 		make $(Executable)
 
 clean :
-		rm -f $(Executable)
+		rm -f $(Executable) *.txt
 
 main : main.cpp
 		$(CXX) $(CXXFLAGS) $< -o $@		
