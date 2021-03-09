@@ -463,7 +463,7 @@ void Print(Map &map)
 		cout << endl;
 	}
 }
-//================================================================================================
+//=================================================================================================
 /*
   Check function belong to Minesweeper class that checks the user input is valid(using recursion method)
 */
