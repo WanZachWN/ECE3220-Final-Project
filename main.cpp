@@ -101,7 +101,7 @@ int main()
 		delete mine;
 		mine = NULL;
 	}
-	catch (...)//catch block for unexpected errors during runtime
+	catch (...)//catch block for unexpected errors during runtime.
 	{
 		cerr << "Unexpected Error Occured" << endl;
 		exitcode = 1;
